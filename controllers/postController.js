@@ -1,4 +1,10 @@
 const Post = require('../models/post');
+let io;
+
+// Configurar io
+exports.setIo = (socketIo) => {
+  io = socketIo;
+};
 
 // Crear un nuevo post
 exports.createPost = async (req, res) => {
@@ -7,6 +13,7 @@ exports.createPost = async (req, res) => {
     const nuevoPost = new Post({ titulo, contenido, autor });
     await nuevoPost.save();
     res.status(201).json(nuevoPost);
+    io.emit('newPost', nuevoPost); // Emitir evento de nuevo post
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -22,10 +29,10 @@ exports.getPosts = async (req, res) => {
   }
 };
 
-//obtener post por id_foro
+// Obtener post por id_foro
 exports.getPostByForo = async (req, res) => {
   try {
-    const posts = await Post.find({id_foro: req.params.id_foro});
+    const posts = await Post.find({ id_foro: req.params.id_foro });
     res.json(posts);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -57,13 +64,14 @@ exports.updatePost = async (req, res) => {
     post.titulo = titulo || post.titulo;
     post.contenido = contenido || post.contenido;
     post.autor = autor || post.autor;
-    
+
     await post.save();
     res.json(post);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-}
+    io.emit('updatePost', post); // Emitir evento de actualización de post
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // Eliminar un post por ID
 exports.deletePost = async (req, res) => {
@@ -73,8 +81,8 @@ exports.deletePost = async (req, res) => {
       return res.status(404).json({ message: 'Post no encontrado' });
     }
     res.json({ message: 'Post eliminado' });
+    io.emit('deletePost', post._id); // Emitir evento de eliminación de post
   } catch (err) {
     res.status(500).json({ error: err.message });
-
-    }
-}
+  }
+};

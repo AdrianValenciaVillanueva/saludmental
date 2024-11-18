@@ -12,7 +12,7 @@ const UsuarioSchema = new mongoose.Schema({
   },
   sexo: {
     type: String,
-    enum: ['masculino', 'femenino', 'prefiero no decirlo'],
+    enum: ['masculino', 'femenino','no binario', 'prefiero no decirlo'],
     required: true,
   },
   correo: {
