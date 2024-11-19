@@ -10,7 +10,8 @@ exports.setIo = (socketIo) => {
 // Crear un nuevo post
 exports.createPost = async (req, res) => {
   try {
-    const { id_usuario, id_foro, contenido } = req.body;
+    const { id_foro, contenido } = req.body;
+    const id_usuario = req.user.id; // Obtener el id_usuario del token
 
     // Validar que todos los campos estén presentes
     if (!id_usuario || !id_foro || !contenido) {

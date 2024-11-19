@@ -18,9 +18,20 @@ connectDB();
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server,{
+  cors: {
+    origin: 'http://localhost:8080', // Especifica el origen permitido
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
 
-app.use(cors()); // Permitir solicitudes desde el frontend
+const corsOptions = {
+  origin: 'http://localhost:8080', // Especifica el origen permitido
+  credentials: true // Permite el envío de cookies
+};
+
+app.use(cors(corsOptions)); // Permitir solicitudes desde el frontend
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

@@ -16,25 +16,31 @@ exports.createUsuario = async (req, res) => {
 
 // Iniciar sesión
 exports.loginUsuario = async (req, res) => {
-    try {
-      const { correo, contrasena } = req.body;
-      const usuario = await Usuario.findOne({ correo });
-      if (!usuario) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
-  
-      const isMatch = await bcrypt.compare(contrasena, usuario.contrasena);
-      if (!isMatch) {
-        return res.status(400).json({ message: 'Contraseña incorrecta' });
-      }
-  
-      const token = jwt.sign({ id: usuario._id }, 'antisuicidesquad', { expiresIn: '1h' });
-      res.cookie('token', token, { httpOnly: true, secure: true });
-      res.json({ message: 'Inicio de sesión exitoso' });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+  try {
+    const { correo, contrasena } = req.body;
+    const usuario = await Usuario.findOne({ correo });
+    if (!usuario) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
     }
-  };
+
+    const isMatch = await bcrypt.compare(contrasena, usuario.contrasena);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Contraseña incorrecta' });
+    }
+
+    const token = jwt.sign({ id: usuario._id }, 'antisuicidesquad', { expiresIn: '1h' });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true, 
+      sameSite: 'None', 
+      path: '/' 
+    });
+
+    res.json({ message: 'Inicio de sesión exitoso' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // Obtener todos los usuarios
 exports.getUsuarios = async (req, res) => {
