@@ -1,4 +1,5 @@
 const Post = require('../models/post');
+const axios = require('axios');
 let io;
 
 // Configurar io
@@ -10,6 +11,26 @@ exports.setIo = (socketIo) => {
 exports.createPost = async (req, res) => {
   try {
     const { id_usuario, id_foro, contenido } = req.body;
+
+    // Validar que todos los campos estén presentes
+    if (!id_usuario || !id_foro || !contenido) {
+      return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    // Filtrar palabras ofensivas usando la API de Perspective
+    const apiKey = 'AIzaSyAUFART6my3ALDQWODp3CfxlpWnRsRGx-w'; // Reemplaza con tu clave API de Perspective
+    const url = `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${apiKey}`;
+    const response = await axios.post(url, {
+      comment: { text: contenido },
+      languages: ['es'],
+      requestedAttributes: { TOXICITY: {} }
+    });
+
+    const toxicityScore = response.data.attributeScores.TOXICITY.summaryScore.value;
+    if (toxicityScore >= 0.07) { // Ajusta el umbral según tus necesidades
+      return res.status(400).json({ error: 'El contenido contiene palabras ofensivas' });
+    }
+
     const nuevoPost = new Post({ id_usuario, id_foro, contenido });
     await nuevoPost.save();
     res.status(201).json(nuevoPost);
@@ -18,6 +39,7 @@ exports.createPost = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Obtener todos los posts
 exports.getPosts = async (req, res) => {
