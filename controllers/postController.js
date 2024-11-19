@@ -9,8 +9,8 @@ exports.setIo = (socketIo) => {
 // Crear un nuevo post
 exports.createPost = async (req, res) => {
   try {
-    const { titulo, contenido, autor } = req.body;
-    const nuevoPost = new Post({ titulo, contenido, autor });
+    const { id_usuario, id_foro, contenido } = req.body;
+    const nuevoPost = new Post({ id_usuario, id_foro, contenido });
     await nuevoPost.save();
     res.status(201).json(nuevoPost);
     io.emit('newPost', nuevoPost); // Emitir evento de nuevo post

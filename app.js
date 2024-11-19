@@ -11,6 +11,7 @@ const indexRouter = require('./routes/index');
 const usuariosRouter = require('./routes/usuario');
 const forosRouter = require('./routes/foros');
 const postsRouter = require('./routes/posts');
+const citasRouter = require('./routes/citas');
 
 // Conectar a la base de datos
 connectDB();
@@ -29,6 +30,7 @@ app.use('/api', indexRouter);
 app.use('/api', usuariosRouter);
 app.use('/api', forosRouter);
 app.use('/api', postsRouter);
+app.use('/api', citasRouter);
 
 app.use((req, res, next) => {
   const err = new Error('Not Found');
