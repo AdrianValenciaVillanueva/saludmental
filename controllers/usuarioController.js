@@ -28,25 +28,42 @@ exports.loginUsuario = async (req, res) => {
       return res.status(400).json({ message: 'Contraseña incorrecta' });
     }
 
-    const token = jwt.sign({ id: usuario._id }, 'antisuicidesquad', { expiresIn: '1h' });
+    const token = jwt.sign({ id: usuario._id, nombre: usuario.nombre }, 'antisuicidesquad', { expiresIn: '1h' });
     res.cookie('token', token, {
       httpOnly: true,
-      secure: true, 
-      sameSite: 'None', 
+      secure: true, // Cambia a true si estás usando HTTPS
+      sameSite: 'None', // Permite que la cookie se envíe en todas las solicitudes
       path: '/' 
     });
-
     res.json({ message: 'Inicio de sesión exitoso' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-
 // Obtener todos los usuarios
 exports.getUsuarios = async (req, res) => {
   try {
     const usuarios = await Usuario.find();
     res.json(usuarios);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+//onbtener usuario logeado
+exports.getUsuarioLogeado = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ message: 'No autorizado' });
+    }
+
+    const decoded = jwt.verify(token, 'antisuicidesquad');
+    const usuario = await Usuario.findById(decoded.id).select('-contrasena');
+    if (!usuario) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    res.json(usuario);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
