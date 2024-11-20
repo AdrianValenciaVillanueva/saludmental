@@ -25,4 +25,8 @@ router.put('/usuarios/:id', usuarioController.updateUsuario);
 // Eliminar un usuario por ID
 router.delete('/usuarios/:id', usuarioController.deleteUsuario);
 
+//Elimina la cookie
+router.post('/usuarios/logout', usuarioController.logoutUsuario);
+
+
 module.exports = router;

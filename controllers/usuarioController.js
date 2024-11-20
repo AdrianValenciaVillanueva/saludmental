@@ -121,3 +121,13 @@ exports.deleteUsuario = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.logoutUsuario = (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: true, // Solo en producción con HTTPS
+    sameSite: 'None',
+    path: '/',    // Asegúrate de que coincida con la ruta de la cookie
+  });
+  res.json({ message: 'Sesión cerrada exitosamente' });
+};
